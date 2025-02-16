@@ -114,7 +114,7 @@
 
         /* Mobile view styles */
         @media (max-width: 768px) {
-        .flex-container {
+            .flex-container {
             flex-direction: column;
             gap: 10px;
         }
@@ -134,9 +134,11 @@
             z-index: 1000;
             max-height: 80vh;
             overflow-y: auto;
+            display: none; /* Hide by default */
         }
 
-        .bakesale-container.show {
+        .bakesale-container.visible {
+            display: block;
             transform: translateY(0);
         }
 
@@ -169,20 +171,31 @@
             z-index: 998;
         }
 
-        .overlay.show {
+        .overlay.visible {
             display: block;
         }
 
-        /* Close button for the panel */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
         .close-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
             background: none;
             border: none;
             font-size: 24px;
             cursor: pointer;
             color: #ff7e67;
+            padding: 5px 10px;
         }
     
 
@@ -468,41 +481,84 @@ function toggleBakesale(event) {
     }
 }
 document.addEventListener("DOMContentLoaded", function () {
-            const toggleButton = document.getElementById("bakesaleToggle");
-            const container = document.querySelector(".bakesale-container");
-            const overlay = document.getElementById("overlay");
+    const toggleButton = document.getElementById("bakesaleToggle");
+    const container = document.querySelector(".bakesale-container");
+    const overlay = document.getElementById("overlay");
 
-            // Add close button to the container
-            const closeButton = document.createElement("button");
-            closeButton.className = "close-panel";
-            closeButton.innerHTML = "×";
-            container.insertBefore(closeButton, container.firstChild);
+    // Create and add header with title and close button
+    const header = document.createElement("div");
+    header.className = "panel-header";
+    header.innerHTML = `
+        <h3 class="panel-title">Add Bake Sale</h3>
+        <button class="close-panel">×</button>
+    `;
+    container.insertBefore(header, container.firstChild);
 
-            function openPanel() {
-                container.classList.add("show");
-                overlay.classList.add("show");
-                document.body.style.overflow = "hidden"; // Prevent background scrolling
+    const closeButton = header.querySelector(".close-panel");
+
+    function showPanel() {
+        container.style.display = 'block';
+        // Force reflow
+        container.offsetHeight;
+        container.classList.add('visible');
+        overlay.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hidePanel() {
+        container.classList.remove('visible');
+        overlay.classList.remove('visible');
+        document.body.style.overflow = '';
+        // Wait for transition to finish before hiding
+        setTimeout(() => {
+            if (!container.classList.contains('visible')) {
+                container.style.display = 'none';
             }
+        }, 300);
+    }
 
-            function closePanel() {
-                container.classList.remove("show");
-                overlay.classList.remove("show");
-                document.body.style.overflow = ""; // Restore scrolling
-            }
+    // Show panel when toggle button is clicked
+    toggleButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showPanel();
+    });
 
-            toggleButton.addEventListener("click", openPanel);
-            closeButton.addEventListener("click", closePanel);
-            overlay.addEventListener("click", closePanel);
+    // Hide panel when close button is clicked
+    closeButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hidePanel();
+    });
 
-            // Prevent panel from closing when clicking inside it
-            container.addEventListener("click", function(e) {
+    // Hide panel when overlay is clicked
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            hidePanel();
+        }
+    });
+
+    // Prevent panel from closing when clicking inside
+    container.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
+
+    // Prevent panel from closing when interacting with inputs
+    const inputs = container.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        ['click', 'focus', 'touchstart', 'touchend'].forEach(eventType => {
+            input.addEventListener(eventType, (e) => {
                 e.stopPropagation();
             });
-
-            // Update button text
-            toggleButton.textContent = "Add Bake Sale";
         });
+    });
 
+    // Prevent touchmove events from bubbling up when scrolling the panel
+    container.addEventListener('touchmove', (e) => {
+        e.stopPropagation();
+    }, { passive: true });
+
+    // Update toggle button text
+    toggleButton.textContent = "Add Bake Sale";
+});
 
  function handleResponsiveLayout() {
             const toggle = document.querySelector('.bakesale-toggle');
