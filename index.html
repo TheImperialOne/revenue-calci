@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .input-section, .average-price-container, .bakesale-container {
+            flex: 1;
+            padding: 20px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 2px solid #ff7e67;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #ff3e67;
+            box-shadow: 0 0 8px rgba(255, 62, 103, 0.5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #ff7e67;
+            color: white;
+        }
+        .article-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 3px;
+        }
+        .add-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .bakesale-list {
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .bakesale-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .bakesale-item:last-child {
+            border-bottom: none;
+        }
+        .bakesale-amount {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Mobile view styles */
+        @media (max-width: 768px) {
+            .flex-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .bakesale-container {
+                display: none; /* Hidden by default */
+            }
+
+            .bakesale-toggle {
+                display: block;
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+                border: none;
+                border-radius: 10px;
+                text-align: left;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                margin: 10px 0;
+                position: relative;
+            }
+
+            .bakesale-toggle::after {
+                content: '▼';
+                position: absolute;
+                right: 15px;
+                transition: transform 0.3s;
+            }
+
+            .bakesale-toggle.active::after {
+                transform: rotate(180deg);
+            }
+.bakesale-container {
+    display: none; /* Start hidden */
+}
+            .bakesale-container.show {
+                display: block;
+                animation: slideDown 0.3s ease-out;
+            }
+            
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Adjusting table for mobile */
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flex-container">
+            <div class="input-section">
+                <h2>Revenue Calculator</h2>
+                <div class="input-group">
+                    <label>Yearly Revenue Target:</label>
+                    <input type="number" id="yearlyTarget" value="0" min="0" oninput="calculateRevenue()">
+                </div>
+                <div class="input-group">
+                    <label>Working Days per Month:</label>
+                    <input type="number" id="workingDays" value="0" min="1" max="31" oninput="calculateRevenue()">
+                </div>
+                <div class="input-group">
+                    <label>Average Order Value (AOV):</label>
+                    <input type="number" id="averagePrice" value="0" readonly>
+                </div>
+            </div>
+            <div class="average-price-container">
+                <h2>AOV Calculator</h2>
+                <div id="articlesList"></div>
+                <button class="btn add-btn" onclick="addArticle()">Add Article</button>
+                <h3>Final AOV: <span id="finalAvgPrice">0.00</span></h3>
+            </div>
+            <!-- New toggle button for mobile -->
+            <button class="bakesale-toggle" id="bakesaleToggle" style="display: none;">
+                Bake Sale Management
+            </button>
+            <div class="bakesale-container">
+                <h2>Bake Sale Management</h2>
+                <div class="input-group">
+                    <label>Month:</label>
+                    <select id="bakesaleMonth">
+                        <option value="">Select a month</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Bake Sale Amount:</label>
+                    <input type="number" id="bakesaleAmount" value="0" min="0">
+                </div>
+                <button class="btn add-btn" onclick="addBakesale()">Add Bake Sale</button>
+                <div class="bakesale-list" id="bakesaleList">
+                    <h3>Added Bake Sales</h3>
+                </div>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Monthly Revenue Target</th>
+                    <th>Daily Revenue Target</th>
+                    <th>Daily Orders</th>
+                </tr>
+            </thead>
+            <tbody id="revenueTable"></tbody>
+        </table>
+    </div>
+    <script>
+        // Global variables to track state
+let articles = [{ id: 1, price: 0 }];
+let bakesaleTotal = {};
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function addArticle() {
+            if (articles.length > 0 && articles[articles.length - 1].price === 0) {
+                alert("Please enter a valid price for the current article before adding a new one.");
+                return;
+            }
+            let id = articles.length + 1;
+            articles.push({ id, price: 0 });
+            renderArticles();
+        }
+
+        function removeArticle(id) {
+            articles = articles.filter(a => a.id !== id);
+            renderArticles();
+        }
+
+        function updateArticlePrice(id, value) {
+            let article = articles.find(a => a.id === id);
+            if (article) article.price = parseFloat(value) || 0;
+calculateRevenue();
+            updateAveragePrice();
+        }
+
+        function updateAveragePrice() {
+            let validArticles = articles.filter(a => a.price > 0);
+            let total = validArticles.reduce((sum, a) => sum + a.price, 0);
+            let avg = validArticles.length ? total / validArticles.length : 0;
+            document.getElementById("finalAvgPrice").innerText = avg.toFixed(2);
+            document.getElementById("averagePrice").value = avg.toFixed(2);
+        }
+
+        function renderArticles() {
+            let container = document.getElementById("articlesList");
+            container.innerHTML = "";
+            articles.forEach(article => {
+                let div = document.createElement("div");
+                div.className = "input-group";
+                div.innerHTML = `
+                    <label>Article ${article.id} Price:</label>
+                    <input type="number" value="${article.price}" min="0" oninput="updateArticlePrice(${article.id}, this.value)">
+                    ${article.id !== 1 ? `<button class="btn remove-btn" onclick="removeArticle(${article.id})">Remove</button>` : ''}
+                `;
+                container.appendChild(div);
+            });
+            updateAveragePrice();
+        }
+
+function populateMonths() {
+    let select = document.getElementById("bakesaleMonth");
+    select.innerHTML = '<option value="">Select a month</option>';
+    months.forEach(month => {
+        let option = document.createElement("option");
+        option.value = month;
+        option.innerText = month;
+        select.appendChild(option);
+    });
+}
+
+function addBakesale() {
+    let bakesaleAmount = parseFloat(document.getElementById("bakesaleAmount").value) || 0;
+    let bakesaleMonth = document.getElementById("bakesaleMonth").value;
+    
+    if (!bakesaleMonth || bakesaleAmount <= 0) {
+        alert("Please select a month and enter a valid amount");
+        return;
+    }
+    
+    bakesaleTotal[bakesaleMonth] = bakesaleAmount;
+    calculateRevenue();
+    
+    // Reset inputs after adding
+    document.getElementById("bakesaleAmount").value = "0";
+    document.getElementById("bakesaleMonth").value = "";
+}
+
+function calculateRevenue() {
+    let yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
+    let workingDays = parseInt(document.getElementById("workingDays").value) || 1;
+    let averagePrice = parseFloat(document.getElementById("averagePrice").value) || 0;
+    
+    if (averagePrice === 0) {
+        document.getElementById("revenueTable").innerHTML = "";
+        return;
+    }
+
+    let totalBakesaleAmount = Object.values(bakesaleTotal).reduce((sum, amount) => sum + amount, 0);
+    let adjustedYearlyTarget = yearlyTarget - totalBakesaleAmount;
+    let baseMonthlyTarget = adjustedYearlyTarget / 12;
+    let baseDailyTarget = (baseMonthlyTarget / workingDays).toFixed(2);
+    let baseDailyOrders = ((baseMonthlyTarget / workingDays) / averagePrice).toFixed(2);
+    
+    let tableHTML = '';
+    months.forEach(month => {
+        let bakesaleAmount = bakesaleTotal[month] || 0;
+        
+        tableHTML += `
+            <tr>
+                <td>${month}</td>
+                <td>${baseMonthlyTarget.toFixed(2)}${bakesaleAmount > 0 ? ` <span style="color: red">(+${bakesaleAmount.toFixed(2)})</span>` : ''}</td>
+                <td>${baseDailyTarget}</td>
+                <td>${baseDailyOrders}</td>
+            </tr>
+        `;
+    });
+    
+    document.getElementById("revenueTable").innerHTML = tableHTML;
+}
+// Add input event listeners for real-time updates
+document.getElementById("yearlyTarget").addEventListener("input", calculateRevenue);
+document.getElementById("workingDays").addEventListener("input", calculateRevenue);
+
+// Update the updateArticlePrice function to be more responsive
+function updateArticlePrice(id, value) {
+    let article = articles.find(a => a.id === id);
+    if (article) {
+        article.price = parseFloat(value) || 0;
+        updateAveragePrice();
+    }
+}
+
+// Optimize the updateAveragePrice function
+function updateAveragePrice() {
+    let validArticles = articles.filter(a => a.price > 0);
+    let total = validArticles.reduce((sum, a) => sum + a.price, 0);
+    let avg = validArticles.length ? total / validArticles.length : 0;
+    
+    document.getElementById("finalAvgPrice").innerText = avg.toFixed(2);
+    document.getElementById("averagePrice").value = avg.toFixed(2);
+    calculateRevenue();
+}
+
+// Optimize bakesale functions
+function addBakesale() {
+    let bakesaleAmount = parseFloat(document.getElementById("bakesaleAmount").value) || 0;
+    let bakesaleMonth = document.getElementById("bakesaleMonth").value;
+    
+    if (!bakesaleMonth || bakesaleAmount <= 0) {
+        alert("Please select a month and enter a valid amount");
+        return;
+    }
+    
+    bakesaleTotal[bakesaleMonth] = bakesaleAmount;
+    renderBakesales();
+    calculateRevenue();
+    
+    document.getElementById("bakesaleAmount").value = "0";
+    document.getElementById("bakesaleMonth").value = "";
+}
+
+function removeBakesale(month) {
+    delete bakesaleTotal[month];
+    renderBakesales();
+    calculateRevenue();
+}
+        function renderBakesales() {
+    const container = document.getElementById("bakesaleList");
+    let content = "<h3>Added Bake Sales</h3>";
+    
+    if (Object.keys(bakesaleTotal).length === 0) {
+        content += "<p>No bake sales added yet</p>";
+    } else {
+        for (const [month, amount] of Object.entries(bakesaleTotal)) {
+            content += `
+                <div class="bakesale-item">
+                    <span>${month}</span>
+                    <span class="bakesale-amount">${amount.toFixed(2)}</span>
+                    <button class="btn remove-btn" onclick="removeBakesale('${month}')">Remove</button>
+                </div>
+            `;
+        }
+    }
+    
+    container.innerHTML = content;
+}
+document.getElementById("bakesaleAmount").addEventListener("click", function (event) {
+    event.stopPropagation(); // Prevent the dropdown from closing
+});
+
+// Restrict Bake Sale Amount to not exceed the Yearly Revenue Target
+document.getElementById("bakesaleAmount").addEventListener("input", function () {
+    let yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
+    let bakesaleAmount = parseFloat(this.value) || 0;
+
+    if (bakesaleAmount > yearlyTarget) {
+        alert("Bake Sale Amount cannot be greater than the Yearly Revenue Target.");
+        this.value = yearlyTarget; // Reset the value to the max allowed
+    }
+});
+function toggleBakesale(event) {
+    const container = document.querySelector('.bakesale-container');
+    const toggle = document.querySelector('.bakesale-toggle');
+
+    // Check if event is undefined (when called from inline onclick)
+    if (event) {
+        event.stopPropagation(); // Prevents closing when interacting inside
+    }
+
+    // Toggle the dropdown visibility
+    if (container.classList.contains('show')) {
+        container.classList.remove('show');
+        toggle.classList.remove('active');
+    } else {
+        container.classList.add('show');
+        toggle.classList.add('active');
+    }
+}
+document.addEventListener("DOMContentLoaded", function () {
+        const toggleButton = document.getElementById("bakesaleToggle");
+        const container = document.querySelector(".bakesale-container");
+        const bakesaleInputs = container.querySelectorAll('input, select');
+
+        // Function to toggle dropdown
+        function toggleBakesale(event) {
+            event.stopPropagation();
+            container.classList.toggle("show");
+            toggleButton.classList.toggle("active");
+        }
+
+        // Prevent closing when interacting with inputs
+        bakesaleInputs.forEach(input => {
+            input.addEventListener("click", (event) => {
+                event.stopPropagation();
+            });
+            
+            input.addEventListener("focus", (event) => {
+                event.stopPropagation();
+                // Ensure container stays open when focusing on inputs
+                container.classList.add("show");
+                toggleButton.classList.add("active");
+            });
+        });
+
+        // Prevent dropdown from closing when clicking inside the container
+        container.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        // Only close dropdown when clicking outside both the container and toggle button
+        document.addEventListener("click", function (event) {
+            const isClickInsideContainer = container.contains(event.target);
+            const isClickOnToggle = toggleButton.contains(event.target);
+            const isClickOnInput = event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT';
+
+            if (!isClickInsideContainer && !isClickOnToggle && !isClickOnInput) {
+                container.classList.remove("show");
+                toggleButton.classList.remove("active");
+            }
+        });
+
+        // Attach event listener to the toggle button
+        toggleButton.addEventListener("click", toggleBakesale);
+    });
+
+
+ function handleResponsiveLayout() {
+            const toggle = document.querySelector('.bakesale-toggle');
+            const container = document.querySelector('.bakesale-container');
+            
+            if (window.innerWidth <= 768) {
+                toggle.style.display = 'block';
+                container.classList.remove('show');
+            } else {
+                toggle.style.display = 'none';
+                container.style.display = 'block';
+            }
+        }
+
+        // Add event listener for window resize
+        window.addEventListener('resize', handleResponsiveLayout);
+        
+        // Call it once on load
+        handleResponsiveLayout();
+        
+        // Initialize the calculator
+        populateMonths();
+        renderArticles();
+        renderBakesales();
+        calculateRevenue();
+    </script>
+</body>
+</html>
