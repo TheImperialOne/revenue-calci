@@ -257,7 +257,7 @@
         <div class="average-price-container">
             <h2>AOV Calculator</h2>
             <div id="articlesList"></div>
-            <button class="btn add-btn" onclick="addArticle()">Add Article</button>
+            <button class="btn add-btn" onclick="addArticle()">Add Product</button>
             <h3>Final AOV: <span id="finalAvgPrice">0.00</span></h3>
         </div>
         <!-- New toggle button for mobile -->
@@ -313,7 +313,7 @@
 
     function addArticle() {
         if (articles.length > 0 && articles[articles.length - 1].price === 0) {
-            alert("Please enter a valid price for the current article before adding a new one.");
+            alert("Please enter a valid price for the current product before adding a new one.");
             return;
         }
         let id = articles.length + 1;
@@ -358,12 +358,11 @@
             let div = document.createElement("div");
             div.className = "input-group";
             div.innerHTML = `
-            <label>Article ${article.id} Price:</label>
+            <label>Product ${article.id} Price:</label>
             <input 
-                type="number" 
-                value="${article.price}"
-                placeholder="Enter price" 
-                min="0" 
+                type="number"
+                placeholder="Enter price"
+                min="0"
                 oninput="handlePriceChange(this, ${article.id})"
                 onchange="handlePriceChange(this, ${article.id})"
             >
