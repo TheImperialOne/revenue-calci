@@ -262,10 +262,10 @@
         </div>
         <!-- New toggle button for mobile -->
         <button class="bakesale-toggle" id="bakesaleToggle" style="display: none;">
-            Bake Sale Management
+            Other Amounts Management
         </button>
         <div class="bakesale-container">
-            <h2>Bake Sale Management</h2>
+            <h2>Other Amounts Management</h2>
             <div class="input-group">
                 <label>Month:</label>
                 <select id="bakesaleMonth">
@@ -277,18 +277,18 @@
                 <select id="bakesaleType">
                     <option value="">Select a type</option>
                     <option value="Corporate Order">Corporate Order</option>
-                    <option value="Bake Sale">Bake Sale</option>
+                    <option value="Other Amounts">Bake Sale</option>
                     <option value="Vendor Tie-up">Vendor Tie-up</option>
                     <option value="Party Order">Party Order</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>Bake Sale Amount:</label>
+                <label>Amount:</label>
                 <input type="number" id="bakesaleAmount" placeholder="Enter Bakesale Amount" min="0">
             </div>
             <button class="btn add-btn" onclick="addBakesale()">Add Amount</button>
             <div class="bakesale-list" id="bakesaleList">
-                <h3>Added Bake Sales</h3>
+                <h3>Added Amounts</h3>
             </div>
         </div>
     </div>
@@ -421,10 +421,10 @@ function removeBakesale(month, index) {
 
     function renderBakesales() {
     const container = document.getElementById("bakesaleList");
-    let content = "<h3>Added Bake Sales</h3>";
+    let content = "<h3>Added Other Amountss</h3>";
 
     if (Object.keys(bakesaleTotal).length === 0) {
-        content += "<p>No bake sales added yet</p>";
+        content += "<p>No Other Amountss added yet</p>";
     } else {
         for (const [month, bakesales] of Object.entries(bakesaleTotal)) {
             bakesales.forEach((bakesale, index) => {
@@ -516,9 +516,9 @@ function calculateRevenue() {
             document.getElementById("averagePrice").value = yearlyTarget;
         }
 
-        // Bake Sale Validation
+        // Other Amounts Validation
         if (totalBakesaleAmount > yearlyTarget) {
-            alert("Total bake sale amount cannot exceed the yearly revenue target.");
+            alert("Total Other Amounts amount cannot exceed the yearly revenue target.");
             document.getElementById("bakesaleAmount").value = 0;
         }
     }
@@ -527,13 +527,13 @@ function calculateRevenue() {
         event.stopPropagation(); // Prevent the dropdown from closing
     });
 
-    // Restrict Bake Sale Amount to not exceed the Yearly Revenue Target
+    // Restrict Other Amounts Amount to not exceed the Yearly Revenue Target
     document.getElementById("bakesaleAmount").addEventListener("input", function () {
         let yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
         let bakesaleAmount = parseFloat(this.value) || 0;
 
         if (bakesaleAmount > yearlyTarget) {
-            alert("Bake Sale Amount cannot be greater than the Yearly Revenue Target.");
+            alert("Other Amounts Amount cannot be greater than the Yearly Revenue Target.");
             this.value = yearlyTarget; // Reset the value to the max allowed
         }
     });
