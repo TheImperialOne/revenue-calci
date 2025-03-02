@@ -5,18 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revenue Calculator</title>
     <style>
+        /* Body Styles */
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding-top: 20px;
+            margin: 0; /* Remove default margin */
             background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center the content horizontally */
         }
 
+        /* Header Styles */
+        header {
+            text-align: center;
+            background-color: transparent; /* Make the header background transparent */
+            padding: 0; /* Remove padding */
+            border-bottom: none; /* Remove the border if it exists */
+            width: 100%; /* Ensure the header spans the full width */
+        }
+
+        header img {
+            max-width: 150px; /* Adjust the size of the logo */
+            height: auto;
+            border-radius: 10px; /* Add a slight curve to the image border */
+        }
+
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #333;
+            color: #fff;
+            font-size: 14px;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            width: 100%; /* Make the footer span the full width */
+            position: relative; /* Ensure it stays at the bottom */
+            left: 0;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Content Container */
         .container {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            max-width: 1200px; /* Restrict the main content width */
+            width: 100%; /* Ensure it takes full width within the max-width constraint */
         }
 
         .flex-container {
@@ -141,6 +189,9 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            body{
+                padding: 10px;
+            }
 
             .bakesale-container {
                 position: fixed;
@@ -225,15 +276,35 @@
             /* Adjusting table for mobile */
             table {
                 font-size: 14px;
+                margin-right: 20px;
+            }
+
+            container {
+                margin-left: 20px;
+                margin-right: 20px;
             }
 
             th, td {
                 padding: 8px 5px;
             }
         }
+        @media (min-width: 769px) {
+            /* Hide the close button in PC view */
+            .close-panel {
+                display: none;
+            }
+
+            /* Hide the "Other Amounts" text in the toggle button in PC view */
+            .bakesale-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+<header>
+    <img src="https://storage.googleapis.com/msgsndr/WaYLZUPsCRQzHMbnXACB/media/6797bda7c21e374ac1bc4a71.jpeg" alt="Dipti Vartak Academy Logo">
+</header>
 <div class="container">
     <div class="overlay" id="overlay"></div>
     <div class="flex-container">
@@ -305,6 +376,11 @@
     </table>
 
 </div>
+<footer>
+    <img src="https://storage.googleapis.com/msgsndr/WaYLZUPsCRQzHMbnXACB/media/6797bda7c21e374ac1bc4a71.jpeg" alt="Dipti Vartak Academy Logo" width="75px" height="75px">
+    <p>2025 Dipti Vartak Academy - All Rights Reserved</p>
+    <p><a href="mailto:support@diptivartakacademy.com">support@diptivartakacademy.com</a></p>
+</footer>
 <script>
     // Global variables to track state
     let articles = [{id: 1, price: 0}];
@@ -578,7 +654,6 @@ function calculateRevenue() {
         const header = document.createElement("div");
         header.className = "panel-header";
         header.innerHTML = `
-        <h3 class="panel-title">Other Amounts</h3>
         <button class="close-panel">×</button>
     `;
         container.insertBefore(header, container.firstChild);
