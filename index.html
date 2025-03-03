@@ -108,6 +108,25 @@
             box-shadow: 0 0 8px rgba(230, 100, 150, 0.5);
         }
 
+        .input-g input, .input-g select {
+            padding: 10px;
+            border: 2px solid #f2b1ca;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-g input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .input-g input:focus, .input-g select:focus {
+            border-color: #f2b1ca;
+            box-shadow: 0 0 8px rgba(230, 100, 150, 0.5);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -304,8 +323,10 @@
 </head>
 <body>
 <header>
+    <div style="text-align: center;">
     <img src="https://storage.googleapis.com/msgsndr/WaYLZUPsCRQzHMbnXACB/media/6797bda7c21e374ac1bc4a71.jpeg" alt="Dipti Vartak Academy Logo">
     <h1>Revenue Target Calculator</h1>
+    </div>
 </header>
 <div class="container">
     <div class="overlay" id="overlay"></div>
@@ -315,7 +336,7 @@
             <div class="input-group">
                 <label>Yearly Revenue Target:</label>
                 <input type="number" id="yearlyTarget" placeholder="Enter yearly target" min="0"
-                       oninput="calculateRevenue()">
+                       oninput="calculateRevenue(); handleResponsiveLayout();">
             </div>
             <div class="input-group">
                 <label>Working Days per Month:</label>
@@ -350,7 +371,7 @@
                 <select id="bakesaleType">
                     <option value="">Select a type</option>
                     <option value="Corporate Order">Corporate Order</option>
-                    <option value="Other Amounts">Bake Sale</option>
+                    <option value="Bake Sale">Bake Sale</option>
                     <option value="Vendor Tie-up">Vendor Tie-up</option>
                     <option value="Party Order">Party Order</option>
                 </select>
@@ -379,9 +400,11 @@
 
 </div>
 <footer>
+    <div style="text-align: center;">
     <img src="https://storage.googleapis.com/msgsndr/WaYLZUPsCRQzHMbnXACB/media/6797bda7c21e374ac1bc4a71.jpeg" alt="Dipti Vartak Academy Logo" width="75px" height="75px">
     <p>2025 Dipti Vartak Academy - All Rights Reserved</p>
     <p><a href="mailto:support@diptivartakacademy.com">support@diptivartakacademy.com</a></p>
+    </div>
 </footer>
 <script>
     // Global variables to track state
@@ -437,12 +460,13 @@
             div.className = "input-group";
             div.innerHTML = `
             <label>Product ${article.id} Price:</label>
-            <input 
+            <input
                 type="number"
                 placeholder="Enter price"
                 min="0"
                 oninput="handlePriceChange(this, ${article.id})"
                 onchange="handlePriceChange(this, ${article.id})"
+                value="${article.price}"
             >
             ${article.id !== 1 ? `<button class="btn remove-btn" onclick="removeArticle(${article.id})">Remove</button>` : ''}
         `;
@@ -463,103 +487,103 @@
     }
 
     function addBakesale() {
-    let bakesaleAmount = parseFloat(document.getElementById("bakesaleAmount").value) || 0;
-    let bakesaleMonth = document.getElementById("bakesaleMonth").value;
-    let bakesaleType = document.getElementById("bakesaleType").value;
+        let bakesaleAmount = parseFloat(document.getElementById("bakesaleAmount").value) || 0;
+        let bakesaleMonth = document.getElementById("bakesaleMonth").value;
+        let bakesaleType = document.getElementById("bakesaleType").value;
 
-    if (!bakesaleMonth || !bakesaleType || bakesaleAmount <= 0) {
-        alert("Please select a month, type, and enter a valid amount");
-        return;
-    }
-
-    if (!bakesaleTotal[bakesaleMonth]) {
-        bakesaleTotal[bakesaleMonth] = [];
-    }
-
-    bakesaleTotal[bakesaleMonth].push({ type: bakesaleType, amount: bakesaleAmount });
-    renderBakesales();
-    calculateRevenue();
-
-    document.getElementById("bakesaleAmount").value = "";
-    document.getElementById("bakesaleMonth").value = "";
-    document.getElementById("bakesaleType").value = "";
-}   
-
-function removeBakesale(month, index) {
-    if (bakesaleTotal[month]) {
-        bakesaleTotal[month].splice(index, 1);
-        if (bakesaleTotal[month].length === 0) {
-            delete bakesaleTotal[month];
+        if (!bakesaleMonth || !bakesaleType || bakesaleAmount <= 0) {
+            alert("Please select a month, type, and enter a valid amount");
+            return;
         }
+
+        if (!bakesaleTotal[bakesaleMonth]) {
+            bakesaleTotal[bakesaleMonth] = [];
+        }
+
+        bakesaleTotal[bakesaleMonth].push({ type: bakesaleType, amount: bakesaleAmount });
+        renderBakesales();
+        calculateRevenue();
+
+        document.getElementById("bakesaleAmount").value = "";
+        document.getElementById("bakesaleMonth").value = "";
+        document.getElementById("bakesaleType").value = "";
     }
-    renderBakesales();
-    calculateRevenue();
-}
+
+    function removeBakesale(month, index) {
+        if (bakesaleTotal[month]) {
+            bakesaleTotal[month].splice(index, 1);
+            if (bakesaleTotal[month].length === 0) {
+                delete bakesaleTotal[month];
+            }
+        }
+        renderBakesales();
+        calculateRevenue();
+    }
 
     function renderBakesales() {
-    const container = document.getElementById("bakesaleList");
-    let content = "<h3>Added Other Amountss</h3>";
+        const container = document.getElementById("bakesaleList");
+        let content = "<h3>Added Other Amountss</h3>";
 
-    if (Object.keys(bakesaleTotal).length === 0) {
-        content += "<p>No Other Amountss added yet</p>";
-    } else {
-        for (const [month, bakesales] of Object.entries(bakesaleTotal)) {
-            bakesales.forEach((bakesale, index) => {
-                content += `
-                    <div class="bakesale-item">
-                        <span>${month} - ${bakesale.type}</span>
-                        <span class="bakesale-amount">${bakesale.amount.toFixed(2)}</span>
-                        <button class="btn remove-btn" onclick="removeBakesale('${month}', ${index})">Remove</button>
-                    </div>
-                `;
-            });
+        if (Object.keys(bakesaleTotal).length === 0) {
+            content += "<p>No Other Amounts added yet</p>";
+        } else {
+            for (const [month, bakesales] of Object.entries(bakesaleTotal)) {
+                bakesales.forEach((bakesale, index) => {
+                    content += `
+                        <div class="bakesale-item">
+                            <span>${month} - ${bakesale.type}</span>
+                            <span class="bakesale-amount">${bakesale.amount.toFixed(2)}</span>
+                            <button class="btn remove-btn" onclick="removeBakesale('${month}', ${index})">Remove</button>
+                        </div>
+                    `;
+                });
+            }
         }
+
+        container.innerHTML = content;
     }
 
-    container.innerHTML = content;
-}
+    function calculateRevenue() {
+        yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
+        let workingDays = parseInt(document.getElementById("workingDays").value) || 0;
+        let averagePrice = parseFloat(document.getElementById("averagePrice").value) || 0;
 
-function calculateRevenue() {
-    let yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
-    let workingDays = parseInt(document.getElementById("workingDays").value) || 0;
-    let averagePrice = parseFloat(document.getElementById("averagePrice").value) || 0;
+        // Require all three values to be non-zero
+        if (yearlyTarget === 0 || workingDays === 0 || averagePrice === 0) {
+            document.getElementById("revenueTable").innerHTML = "";
+            return;
+        }
 
-    // Require all three values to be non-zero
-    if (yearlyTarget === 0 || workingDays === 0 || averagePrice === 0) {
-        document.getElementById("revenueTable").innerHTML = "";
-        return;
+        let totalBakesaleAmount = 0;
+        for (const bakesales of Object.values(bakesaleTotal)) {
+            totalBakesaleAmount += bakesales.reduce((sum, bakesale) => sum + bakesale.amount, 0);
+        }
+
+        let adjustedYearlyTarget = yearlyTarget - totalBakesaleAmount;
+        let baseMonthlyTarget = adjustedYearlyTarget / 12;
+        let baseDailyTarget = (baseMonthlyTarget / workingDays).toFixed(2);
+        let baseDailyOrders = ((baseMonthlyTarget / workingDays) / averagePrice).toFixed(2);
+
+        let tableHTML = '';
+        months.forEach(month => {
+            let bakesales = bakesaleTotal[month] || [];
+            let bakesaleAmount = bakesales.reduce((sum, bakesale) => sum + bakesale.amount, 0);
+
+            tableHTML += `
+                <tr>
+                    <td>${month}</td>
+                    <td>
+                        ${baseMonthlyTarget.toFixed(2)}
+                        ${bakesaleAmount > 0 ? ` <span style="color: red;">(+${bakesaleAmount.toFixed(2)})</span>` : ''}
+                    </td>
+                    <td>${baseDailyTarget}</td>
+                    <td>${baseDailyOrders}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("revenueTable").innerHTML = tableHTML;
     }
-
-    let totalBakesaleAmount = 0;
-    for (const bakesales of Object.values(bakesaleTotal)) {
-        totalBakesaleAmount += bakesales.reduce((sum, bakesale) => sum + bakesale.amount, 0);
-    }
-
-    let adjustedYearlyTarget = yearlyTarget - totalBakesaleAmount;
-    let baseMonthlyTarget = adjustedYearlyTarget / 12;
-    let baseDailyTarget = (baseMonthlyTarget / workingDays).toFixed(2);
-    let baseDailyOrders = ((baseMonthlyTarget / workingDays) / averagePrice).toFixed(2);
-
-    let tableHTML = '';
-    months.forEach(month => {
-        let bakesales = bakesaleTotal[month] || [];
-        let bakesaleAmount = bakesales.reduce((sum, bakesale) => sum + bakesale.amount, 0);
-
-        tableHTML += `
-            <tr>
-                <td>${month}</td>
-                <td>
-                    ${baseMonthlyTarget.toFixed(2)}
-                    ${bakesaleAmount > 0 ? ` <span style="color: red;">(+${bakesaleAmount.toFixed(2)})</span>` : ''}
-                </td>
-                <td>${baseDailyTarget}</td>
-                <td>${baseDailyOrders}</td>
-            </tr>
-        `;
-    });
-
-    document.getElementById("revenueTable").innerHTML = tableHTML;
-}
 
     function validateInputs() {
         let yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
@@ -637,15 +661,43 @@ function calculateRevenue() {
     function handleResponsiveLayout() {
         const toggle = document.querySelector('.bakesale-toggle');
         const container = document.querySelector('.bakesale-container');
+        const yearlyTarget = parseFloat(document.getElementById("yearlyTarget").value) || 0;
 
         if (window.innerWidth <= 768) {
-            toggle.style.display = 'block';
+            // Mobile view
+            if (yearlyTarget < 1) {
+                toggle.style.display = 'none'; // Hide the toggle button if yearly target is empty or less than 1
+            } else {
+                toggle.style.display = 'block'; // Show the toggle button if yearly target is valid
+            }
             container.classList.remove('show');
         } else {
-            toggle.style.display = 'none';
+            // PC view
+            toggle.style.display = 'none'; // Always hide the toggle button in PC view
             container.style.display = 'block';
         }
+
+        // Disable/enable input fields based on yearly target in PC view
+        const inputs = document.querySelectorAll('.input-section input:not(#yearlyTarget), .input-section select, .average-price-container input, .average-price-container select, .bakesale-container input, .bakesale-container select');
+        inputs.forEach(input => {
+            if (yearlyTarget < 1) {
+                input.disabled = true; // Disable input fields if yearly target is empty or less than 1
+            } else {
+                input.disabled = false; // Enable input fields if yearly target is valid
+            }
+        });
     }
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResponsiveLayout);
+
+    // Add event listener for yearly target input change
+    document.getElementById("yearlyTarget").addEventListener("input", function() {
+        handleResponsiveLayout(); // Update layout and input fields when yearly target changes
+    });
+
+    // Initialize the app
+    init();
 
     document.addEventListener("DOMContentLoaded", function () {
         const toggleButton = document.getElementById("bakesaleToggle");
